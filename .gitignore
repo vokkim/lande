@@ -1,0 +1,4 @@
+develop.sh
+node_modules/
+_temp-configuration.json
+configuration.json

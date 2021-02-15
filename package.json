@@ -1,0 +1,17 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Custom home automation app for Melcloud + Nobö",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "author": "Mikko Vesikkala",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "0.21.1",
+    "express": "4.17.1",
+    "influx": "5.6.3",
+    "lodash": "4.17.20",
+    "node-sparkline": "1.2.0"
+  }
+}
