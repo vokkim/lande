@@ -83,6 +83,7 @@ function getExpectedZoneTemperature(zoneConfig) {
 async function getZoneStatus(zoneConfig) {
 
   const devices = await Promise.all(zoneConfig.devices.map(async (device) => {
+    const expectedTemperatureForDevice = getExpectedZoneTemperature(zoneConfig) + device.temperatureCorrection || 0
     if (device.type === 'melcloud') {
       const hvac = await mel.getDeviceStatus({
         buildingId: device.buildingId,
@@ -90,12 +91,12 @@ async function getZoneStatus(zoneConfig) {
       })
       const on = hvac.online && hvac.powerOn
       const {fanSpeed, mode, targetTemperature} = hvac
-      const status = targetTemperature === getExpectedZoneTemperature(zoneConfig) ? zoneConfig.status : 'unknown'
+      const status = targetTemperature === expectedTemperatureForDevice ? zoneConfig.status : 'unknown'
       return {...device, status, on, fanSpeed, mode, targetTemperature}
     } else if (device.type === 'nobo') {
       const noboStatus = await nobo.getNoboStatus(device.zoneId)
       const targetTemperature = noboStatus[`${noboStatus.mode}Temperature`]
-      const status = targetTemperature === getExpectedZoneTemperature(zoneConfig) ? zoneConfig.status : 'unknown'
+      const status = targetTemperature === expectedTemperatureForDevice ? zoneConfig.status : 'unknown'
       return {...device, status, mode: noboStatus.mode, targetTemperature}
     } else {
       throw new Error(`Unsupported device type ${device.type}`)
@@ -142,10 +143,15 @@ async function setAllValues(configuration) {
         return mel.updateDevice({
           buildingId: device.buildingId,
           deviceId: device.deviceId,
-          targetTemperature: targetTemperature
+          targetTemperature: targetTemperature + device.temperatureCorrection || 0
         })
       } else if (device.type === 'nobo') {
-        return nobo.updateDevice(device.zoneId, zone.homeTemperature, zone.awayTemperature, zone.status)
+        return nobo.updateDevice(
+          device.zoneId,
+          zone.homeTemperature + device.temperatureCorrection || 0,
+          zone.awayTemperature + device.temperatureCorrection || 0,
+          zone.status
+        )
       } else {
         throw new Error(`Unknown device type ${device.type}`)
       }
