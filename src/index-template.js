@@ -43,30 +43,30 @@ function render(status) {
       font-size: 16px;
       margin: 2rem;
     }
-    .block {
-      background: #1d1d1d;
-      margin: 5px;
-    }
     #sensors {
       display: flex;
     }
     .temperature {
       display: block;
-      height: 90px;
-      min-width: 90px;
-      max-width: 110px;
       text-align: center;
       padding: 20px 5px;
+      position: relative;
     }
-    .title {
+    .temperature svg {
+      background: #1d1d1d;
+    }
+    .temperatere .title {
       margin: 0px;
       font-size: 14px;
     }
-    .value {
+    .temperature .value {
       margin: 5px;
       text-align: center;
       font-size: 20px;
       color: #FAFAFA;
+      position: absolute;
+      left: 0;
+      right: 0;
     }
 
     h2 {
@@ -175,10 +175,12 @@ function render(status) {
       const svg = sparkline({
         values: history,
         width: 110,
-        height: 30,
+        height: 110,
         stroke: '#57bd0f',
-        strokeWidth: 1.25,
+        strokeWidth: 2.5,
         strokeOpacity: 1,
+        minValue: 0,
+        maxValue: 30
       })
       return `
         <div class="temperature block">
