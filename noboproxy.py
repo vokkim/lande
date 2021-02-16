@@ -36,7 +36,7 @@ def update():
 
     hub.update_zone(zoneId, temp_comfort_c=comfortTemperature, temp_eco_c=ecoTemperature)
     if mode == 'comfort':
-      hub.create_override(hub.API.OVERRIDE_MODE_COMFORT, hub.API.OVERRIDE_TYPE_CONSTANT, hub.API.OVERRIDE_TARGET.ZONE, zoneId)
+      hub.create_override(hub.API.OVERRIDE_MODE_COMFORT, hub.API.OVERRIDE_TYPE_CONSTANT, hub.API.OVERRIDE_TARGET_ZONE, zoneId)
     else:
-      hub.create_override(hub.API.OVERRIDE_MODE_ECO, hub.API.OVERRIDE_TYPE_CONSTANT, hub.API.OVERRIDE_TARGET.ZONE, zoneId)
+      hub.create_override(hub.API.OVERRIDE_MODE_ECO, hub.API.OVERRIDE_TYPE_CONSTANT, hub.API.OVERRIDE_TARGET_ZONE, zoneId)
     return '', 204
