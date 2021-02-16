@@ -32,7 +32,7 @@ def update():
     if mode not in ['eco', 'comfort']:
       return abort(400)
 
-    print(f'Set mode {mode}, comfortTemperature={comfortTemperature} ecoTemperature={ecoTemperature}')
+    app.logger.info(f'Set mode {mode}, comfortTemperature={comfortTemperature} ecoTemperature={ecoTemperature}')
 
     hub.update_zone(zoneId, temp_comfort_c=comfortTemperature, temp_eco_c=ecoTemperature)
     if mode == 'comfort':
