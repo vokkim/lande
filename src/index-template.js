@@ -35,6 +35,9 @@ function render(status) {
       margin: 0;
       padding: 0;
     }
+    html {
+      font-size: 13px;
+    }
     body {
       background: #000000;
       color: #AAAAAA;
@@ -45,19 +48,21 @@ function render(status) {
     }
     #sensors {
       display: flex;
+      flex-wrap: wrap;
+      margin-top: 1rem;
     }
     .temperature {
       display: block;
       text-align: center;
-      padding: 20px 5px;
+      padding: 0 1rem 2rem 0;
       position: relative;
     }
     .temperature svg {
-      background: #1d1d1d;
+      background: #525252;
     }
     .temperatere .title {
       margin: 0px;
-      font-size: 14px;
+      font-size: 1.3rem;
     }
     .temperature .value {
       margin: 5px;
@@ -131,8 +136,7 @@ function render(status) {
       display: flex;
       align-items: center;
       padding: 0.5rem 1rem;
-      max-width: 18rem;
-      margin-left: 11rem;
+      max-width: 22rem;
     }
     .device-type {
       flex: 1 1 auto;
@@ -159,7 +163,7 @@ function render(status) {
     }
 
     .device-mode {
-      flex: 0 0 6rem;
+      flex: 0 0 10rem;
       text-align: center;
     }
 
