@@ -83,7 +83,7 @@ function getExpectedZoneTemperature(zoneConfig) {
 async function getZoneStatus(zoneConfig) {
 
   const devices = await Promise.all(zoneConfig.devices.map(async (device) => {
-    const expectedTemperatureForDevice = getExpectedZoneTemperature(zoneConfig) + device.temperatureCorrection || 0
+    const expectedTemperatureForDevice = getExpectedZoneTemperature(zoneConfig) + (device.temperatureCorrection || 0)
     if (device.type === 'melcloud') {
       const hvac = await mel.getDeviceStatus({
         buildingId: device.buildingId,
@@ -139,17 +139,18 @@ async function setAllValues(configuration) {
   await Promise.all(configuration.zones.map(zone => {
     const targetTemperature = getExpectedZoneTemperature(zone)
     return Promise.all(zone.devices.map(device => {
+      const correction = (device.temperatureCorrection || 0)
       if (device.type === 'melcloud') {
         return mel.updateDevice({
           buildingId: device.buildingId,
           deviceId: device.deviceId,
-          targetTemperature: targetTemperature + device.temperatureCorrection || 0
+          targetTemperature: targetTemperature + correction
         })
       } else if (device.type === 'nobo') {
         return nobo.updateDevice(
           device.zoneId,
-          zone.homeTemperature + device.temperatureCorrection || 0,
-          zone.awayTemperature + device.temperatureCorrection || 0,
+          zone.homeTemperature + correction,
+          zone.awayTemperature + correction,
           zone.status
         )
       } else {
