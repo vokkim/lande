@@ -145,7 +145,7 @@ async function setAllValues(configuration) {
           targetTemperature: targetTemperature
         })
       } else if (device.type === 'nobo') {
-        return nobo.updateDevice(device.zoneId, zone.homeTemperature, zone.awayTemperature, zone.mode)
+        return nobo.updateDevice(device.zoneId, zone.homeTemperature, zone.awayTemperature, zone.status)
       } else {
         throw new Error(`Unknown device type ${device.type}`)
       }
