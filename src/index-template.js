@@ -1,4 +1,5 @@
 const sparkline = require('node-sparkline')
+const {STATUS} = require('./enums')
 
 const hvacModeToString = {
   'OFF': 'Kiinni',
@@ -10,12 +11,10 @@ const hvacModeToString = {
 }
 
 const zoneStatusToString = {
-  'home': 'Kotona',
-  'away': 'Poissa'
-}
-
-function inverseZoneStatus(status) {
-  return status === 'home' ? 'away' : 'home'
+  [STATUS.WARM]: 'Lämmitys',
+  [STATUS.COOL]: 'Jäähdytys',
+  [STATUS.AWAY]: 'Poissa',
+  [STATUS.OFF]: 'Kiinni'
 }
 
 function render(status) {
@@ -88,15 +87,26 @@ function render(status) {
     .zone-controls {
       display: flex;
       margin: 5px 0;
-      align-items: center;
+    }
+    .zone-modes {
+      display: flex;
+      flex-direction: column;
+    }
+    .zone-modes form {
+      display: block;
+      margin: 5px 0;
+    }
+
+    .zone-right-buttons {
+      display: flex;
     }
 
     .button {
       background: #525252;
       text-decoration: none;
       border: 0;
-      height: 4rem;
-      padding: 1rem 2rem;
+      height: 3.5rem;
+      padding: 0.5rem 1.5rem;
       border-radius: 2rem;
       text-align: center;
       font-size: 1.5rem;
@@ -113,17 +123,25 @@ function render(status) {
     }
     .zone-temp {
       width: 4rem;
+      height: 4rem;
       padding: 0;
       font-size: 3rem;
     }
     .zone-status {
       margin-right: 3rem;
+      opacity: 0.45;
+    }
+    .zone-status.active {
+      opacity: 1;
     }
     .button.zone-status.home {
-      background: #3e8c04;
+      background: #963144;
     }
     .button.zone-status.away {
       background: #048c86;
+    }
+    .button.zone-status.cool {
+      background: #1b71bd;
     }
     .zone-target {
       font-size: 3rem;
@@ -136,10 +154,9 @@ function render(status) {
       display: flex;
       align-items: center;
       padding: 0.5rem 1rem;
-      max-width: 22rem;
     }
     .device-type {
-      flex: 1 1 auto;
+      flex: 0 0 6rem;
     }
 
     .device-status {
@@ -200,18 +217,26 @@ function render(status) {
       <div class="zone">
         <h2>${zone.id}</h2>
         <div class="zone-controls">
-          <form action="/zone/${zone.id}/status/${inverseZoneStatus(zone.status)}" method="post">
-            <button class="button zone-status ${zone.status}">${zoneStatusToString[zone.status]}</button>
-          </form>
-          <form action="/zone/${zone.id}/temp/${zone.targetTemperature-1}" method="post">
-            <button class="button zone-temp">-</button>
-          </form>
-          <div class="zone-target">${zone.targetTemperature}°C</div>
-          <form action="/zone/${zone.id}/temp/${zone.targetTemperature+1}" method="post">
-            <button class="button zone-temp">+</button>
-          </form>
+          <div class="zone-modes">
+          ${[STATUS.WARM, STATUS.COOL, STATUS.AWAY, STATUS.OFF].map(status => `
+            <form action="/zone/${zone.id}/status/${status}" method="post">
+              <button class="button zone-status ${status} ${zone.status === status ? 'active' : ''}">${zoneStatusToString[status]}</button>
+            </form>
+          `).join('\n')}
+          </div>
+          <div class="zone-right">
+            <div class="zone-right-buttons">
+              <form action="/zone/${zone.id}/temp/${zone.targetTemperature-1}" method="post">
+                <button class="button zone-temp">-</button>
+              </form>
+              <div class="zone-target">${zone.targetTemperature}°C</div>
+              <form action="/zone/${zone.id}/temp/${zone.targetTemperature+1}" method="post">
+                <button class="button zone-temp">+</button>
+              </form>
+            </div>
+            <div class="devices">${zone.devices.map(renderDevice).join('\n')}</div>
+          </div>
         </div>
-        <div class="devices">${zone.devices.map(renderDevice).join('\n')}</div>
       </div>
       `
     }).join('\n')}

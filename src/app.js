@@ -6,6 +6,7 @@ const MelCloudApi = require("./mel.js")
 const indexTemplate = require('./index-template')
 const config = require('./config')
 const nobo = require('./nobo')
+const {STATUS} = require('./enums')
 
 const app = express()
 const port = 3000
@@ -28,7 +29,7 @@ app.post('/zone/:id/status/:status', async(req, res) => {
     console.error(`Zone ${req.params.id} not found`)
     return res.sendStatus(400)
   }
-  if (!['away', 'home'].includes(req.params.status)) {
+  if (![STATUS.AWAY, STATUS.WARM, STATUS.COOL, STATUS.OFF].includes(req.params.status)) {
     console.error(`Status ${req.params.status} invalid`)
     return res.sendStatus(400)
   }
@@ -73,11 +74,17 @@ async function getStatus() {
 
 
 function getExpectedZoneTemperature(zoneConfig) {
-  if (zoneConfig.status === 'home') {
-    return zoneConfig.homeTemperature
-  } else {
-    return zoneConfig.awayTemperature
+  const temp = zoneConfig[`${zoneConfig.status}Temperature`]
+  if (temp === undefined) {
+    if (zoneConfig.status === STATUS.COOL) {
+      return 20
+    }
+    if (zoneConfig.status === STATUS.OFF) {
+      return 5
+    }
+    return 10
   }
+  return temp
 }
 
 async function getZoneStatus(zoneConfig) {
@@ -144,7 +151,8 @@ async function setAllValues(configuration) {
         return mel.updateDevice({
           buildingId: device.buildingId,
           deviceId: device.deviceId,
-          targetTemperature: targetTemperature + correction
+          targetTemperature: targetTemperature + correction,
+          status: zone.status
         })
       } else if (device.type === 'nobo') {
         return nobo.updateDevice(

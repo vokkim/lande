@@ -1,5 +1,6 @@
 const axios = require('axios')
 const _ = require('lodash')
+const {STATUS} = require('./enums')
 
 const operationModeToString = {
   0: 'OFF',
@@ -8,6 +9,13 @@ const operationModeToString = {
   3: 'COOL',
   7: 'FAN',
   8: 'AUTO'
+}
+
+const statusToOperationMode = {
+  [STATUS.AWAY]: 'HEAT',
+  [STATUS.WARM]: 'HEAT',
+  [STATUS.COOL]: 'COOL',
+  [STATUS.OFF]: 'OFF'
 }
 
 const operationStringToMode = _.invert(operationModeToString)
@@ -48,15 +56,24 @@ async function getDeviceStatus(token, {deviceId, buildingId}) {
 }
 
 async function updateDevice(token, data) {
-  const {deviceId, buildingId} = data
+  const {deviceId, buildingId, status} = data
+  const targetMode = statusToOperationMode[status]
   const deviceStatus = await getDeviceStatus(token, {deviceId, buildingId})
   if (!deviceStatus.online) {
     throw new Error(`Can not set device ${deviceId} state, device offline!`)
   }
-  const {mode, powerOn, targetTemperature, fanSpeed, vertical, horizontal, maxFanSpeed} = _.defaults(data, deviceStatus)
+  const {
+    mode,
+    powerOn,
+    targetTemperature,
+    fanSpeed,
+    vertical,
+    horizontal,
+    maxFanSpeed
+  } = _.defaults({...data, mode: targetMode}, deviceStatus)
   const operationModeValue = operationStringToMode[mode]
   if (!operationModeValue) {
-    throw new Error(`Unknown operation mode ${mode}`)
+    throw new Error(`Unknown operation mode ${typeof mode}=${mode}`)
   }
   const body = {
     DeviceID: deviceId,
@@ -64,7 +81,7 @@ async function updateDevice(token, data) {
     HasPendingCommand : 'true',
     Power: powerOn,
     SetTemperature: targetTemperature,
-    OperationMode: operationStringToMode[mode],
+    OperationMode: operationModeValue,
     SetFanSpeed: Math.max(1, Math.min(fanSpeed, maxFanSpeed)),
     VaneVertical: vertical,
     VaneHorizontal: horizontal,
