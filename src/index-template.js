@@ -27,7 +27,7 @@ function render(status) {
   <meta charset="utf-8">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <title>Tuomola</title>
+  <title>${status.title || ''}</title>
   <style>
     * {
       box-sizing: border-box;
@@ -251,7 +251,7 @@ function renderDevice(device) {
   return `
     <div class="device">
       <div class="device-status ${device.status}"></div>
-      <div class="device-type">${device.type}</div>
+      <div class="device-type">${device.name || device.type}</div>
       <div class="device-mode">${mode}</div>
       <div class="device-target">${device.targetTemperature}°C</div>
     </div>

@@ -15,7 +15,10 @@ let mel = null
 
 const configuration = config.initialConfiguration
 
-MelCloudApi(config.melCloud).then(api => mel = api)
+MelCloudApi(config.melCloud).then(api => {
+  mel = api
+  console.log('MELCloud API ok!')
+})
 const influx = new Influx.InfluxDB(config.influx)
 
 app.get('/health', async (req, res) => {
@@ -75,6 +78,7 @@ async function getStatus() {
   const sensorsValues = await getTemperatures()
   const zones = await Promise.all(configuration.zones.map(getZoneStatus))
   return {
+    title: configuration.title,
     zones,
     sensorsValues
   }
