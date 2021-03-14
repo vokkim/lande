@@ -18,6 +18,10 @@ const configuration = config.initialConfiguration
 MelCloudApi(config.melCloud).then(api => mel = api)
 const influx = new Influx.InfluxDB(config.influx)
 
+app.get('/health', async (req, res) => {
+  res.send('ok')
+})
+
 app.get('/', async (req, res) => {
   const result = await getStatus()
   res.send(indexTemplate(result))
