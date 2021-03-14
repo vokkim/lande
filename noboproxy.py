@@ -1,11 +1,12 @@
 from pynobo import nobo
 from flask import Flask, abort, request
+import os
 app = Flask(__name__)
 
 MAX_TEMPERATURE = 25
 MIN_TEMPERATURE = 8
 
-hub = nobo('012')
+hub = nobo(os.environ['NOBO_ID'])
 
 @app.route('/<zoneId>')
 def root(zoneId):
