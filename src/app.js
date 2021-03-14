@@ -23,12 +23,15 @@ app.get('/health', async (req, res) => {
 })
 
 app.get('/', async (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8')
+  res.setHeader('Transfer-Encoding', 'chunked')
+  res.write('')
   const result = await getStatus()
-  res.send(indexTemplate(result))
+  res.write(indexTemplate(result))
+  res.end()
 })
 
 app.post('/zone/:id/status/:status', async(req, res) => {
-  res.write('')
   const zone = configuration.zones.find(z => z.id === req.params.id)
   if (!zone) {
     console.error(`Zone ${req.params.id} not found`)
@@ -45,7 +48,6 @@ app.post('/zone/:id/status/:status', async(req, res) => {
 })
 
 app.post('/zone/:id/temp/:temperature', async(req, res) => {
-  res.write('')
   const zone = configuration.zones.find(z => z.id === req.params.id)
   if (!zone) {
     console.error(`Zone ${req.params.id} not found`)
