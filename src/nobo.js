@@ -8,10 +8,10 @@ async function getNoboStatus(zoneId) {
   }
   try {
     const {data} = await axios.get(`http://localhost:5000/${zoneId}`)
+    return data
   } catch(e) {
     throw new Error(`Unable to fetch Nobö zone ${zoneId} status: ${e.message}`)
   }
-  return data
 }
 
 async function updateDevice(zoneId, comfortTemperature, ecoTemperature, status) {
