@@ -13,7 +13,7 @@ def root():
   return hub.zones
 
 @app.route('/<zoneId>')
-def root(zoneId):
+def zone(zoneId):
   return {
     "comfortTemperature": int(hub.zones[zoneId]['temp_comfort_c']),
     "ecoTemperature": int(hub.zones[zoneId]['temp_eco_c']),
