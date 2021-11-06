@@ -57,7 +57,7 @@ app.post('/zone/:id/temp/:temperature', async(req, res) => {
     return res.sendStatus(400)
   }
   const temperature = parseInt(req.params.temperature)
-  if (!isFinite(temperature) || temperature <= 0 || temperature > 26) {
+  if (!isFinite(temperature) || temperature <= 0 || temperature > 32) {
     console.error(`Temperature ${req.params.temperature} invalid`)
     return res.sendStatus(400)
   }
