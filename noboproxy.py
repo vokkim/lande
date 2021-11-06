@@ -3,10 +3,14 @@ from flask import Flask, abort, request
 import os
 app = Flask(__name__)
 
-MAX_TEMPERATURE = 25
-MIN_TEMPERATURE = 8
+MAX_TEMPERATURE = 32
+MIN_TEMPERATURE = 2
 
 hub = nobo(os.environ['NOBO_ID'])
+
+@app.route('/')
+def root():
+  return hub.zones
 
 @app.route('/<zoneId>')
 def root(zoneId):

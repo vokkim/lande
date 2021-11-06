@@ -43,7 +43,7 @@ function render(status) {
       font-family: 'Poppins';
       font-weight: 400;
       font-size: 16px;
-      margin: 2rem;
+      margin: 2rem 1rem;
     }
     #sensors {
       display: flex;
