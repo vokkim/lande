@@ -72,6 +72,11 @@ function render(status) {
       left: 0;
       right: 0;
     }
+    span.humidity {
+      font-size: 14px;
+      color: #58c8ea;
+      display: block;
+    }
 
     h2 {
       font-weight: 600;
@@ -192,33 +197,59 @@ function render(status) {
   <h2>Lämpötilat</h2>
   <div id="sensors">
     ${status.sensorsValues.map(d => {
-      const {label, current, history, min, max} = d
-      const svg = sparkline({
-        values: history,
+      const {label, current, history, min, max, humidity} = d
+      const temperatureLine = sparkline({
+        values: history.map(h => h.temperature),
         width: 110,
         height: 110,
         stroke: '#57bd0f',
         strokeWidth: 2.5,
         strokeOpacity: 1,
-        minValue: 0,
-        maxValue: 30
+        minValue: min || 0,
+        maxValue: max || 30,
+        outputOnlyLine: true
       })
+
+      const humidityLine = sparkline({
+        values: history.map(h => h.humidity),
+        width: 110,
+        height: 110,
+        stroke: '#58c8ea',
+        strokeWidth: 2,
+        strokeOpacity: 1,
+        minValue: 0,
+        maxValue: 100,
+        outputOnlyLine: true
+      })
+
+      const svg = `
+        <svg width="110" height="110" viewBox="0 0 110 110" shape-rendering="auto">
+          ${humidity && humidityLine}
+          ${temperatureLine}
+        </svg>`
       return `
         <div class="temperature block">
           <div class="title">${label}</div>
-          <div class="value">${current ? current.toFixed(2) : 'N/A'}°C</div>
+          <div class="value">
+            <span>${current && current.temperature ? current.temperature.toFixed(1) : 'N/A'}°C</span>
+            ${humidity ? `<span class="humidity">${current && current.humidity ? current.humidity.toFixed(0) : 'N/A'}%</span>` : ''}
+          </div>
           ${svg}
         </div>`
     }).join('\n')}
   </div>
   <div id="zones">
     ${status.zones.map(zone => {
+
+      const hasMelCloud = Boolean(zone.devices.find(d => d.type === 'melcloud'))
+      const switches = hasMelCloud ? [STATUS.WARM, STATUS.COOL, STATUS.AWAY, STATUS.OFF] : [STATUS.WARM, STATUS.AWAY]
+
       return `
       <div class="zone">
         <h2>${zone.id}</h2>
         <div class="zone-controls">
           <div class="zone-modes">
-          ${[STATUS.WARM, STATUS.COOL, STATUS.AWAY, STATUS.OFF].map(status => `
+          ${switches.map(status => `
             <form action="/zone/${zone.id}/status/${status}" method="post">
               <button class="button zone-status ${status} ${zone.status === status ? 'active' : ''}">${zoneStatusToString[status]}</button>
             </form>

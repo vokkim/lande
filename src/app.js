@@ -75,7 +75,7 @@ async function getStatus() {
   if (!mel) {
     throw new Error(`MELCloud API not ready!`)
   }
-  const sensorsValues = await getTemperatures()
+  const sensorsValues = await getSensorValues()
   const zones = await Promise.all(configuration.zones.map(getZoneStatus))
   return {
     title: configuration.title,
@@ -130,15 +130,15 @@ function getSensorLabelForName(value) {
   return o ? o.label : null
 }
 
-async function getTemperatures() {
+async function getSensorValues() {
   const historyResult = await influx.query(`
-    SELECT mean("temperature") as "temperature" FROM a_month.ruuvitag
+    SELECT mean("temperature") as "temperature", mean("humidity") as "humidity" FROM a_month.ruuvitag
     WHERE time > now() - 42h
     GROUP BY "name", time(1h) FILL(null)
     ORDER BY time ASC
   `)
   const currentResult = await influx.query(`
-    SELECT temperature, "name"
+    SELECT temperature, humidity, "name"
       FROM a_month.ruuvitag
       WHERE time > now() - 5m
       GROUP BY "name" ORDER BY time
@@ -146,10 +146,10 @@ async function getTemperatures() {
   `)
   return configuration.sensorsValues.map(sensor => {
     const currentValue = currentResult.find(v => v.name === sensor.name)
-    const current = currentValue ? currentValue.temperature : null
+    const current = currentValue ? {temperature: currentValue.temperature, humidity: currentValue.humidity} : null
     const history = historyResult
       .filter(v => v.name === sensor.name)
-      .map(v => v.temperature)
+      .map(v => ({temperature: v.temperature, humidity: v.humidity}))
     return {...sensor, current, history}
   })
 }
